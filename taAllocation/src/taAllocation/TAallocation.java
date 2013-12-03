@@ -7,9 +7,9 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	private long maxLabs;
 	private long minLabs;
-	private LinkedList<TA> TAs;
-	private LinkedList<Instructor> instructors;
-	private LinkedList<Course> courses;
+	public LinkedList<TA> TAs;
+	public LinkedList<Instructor> instructors;
+	public LinkedList<Course> courses;
 	public long getMaxLabs() {
 		return maxLabs;
 	}
