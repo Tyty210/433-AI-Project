@@ -18,7 +18,7 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 		return minLabs;
 	}
 
-	private LinkedList<Timeslot> timeslots;
+	public LinkedList<Timeslot> timeslots;
 	
 	public TAallocation(PredicateReader p) {
 		super(p);
