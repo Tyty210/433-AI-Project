@@ -66,15 +66,27 @@ public class SoftConstraints {
 		min = max = TAs.get(0).getInstructing().size();
 		if (min == 0) {unfunded += 1;}
 		
-		for(int i = 1; 1 < TAs.size(); i++){
+		for(int i = 1; i < TAs.size(); i++){
 			tmp = TAs.get(i).getInstructing().size();
 			if (tmp < min) {min = tmp;}
 			if (tmp > max) {max = tmp;}
+			
+			for (int j = 0; j < TAs.get(i).getInstructing().size(); j++){
+				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(0).getName())){
+					closscore -= 25;
+				}
+				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(1).getName())){
+					closscore -= 20;
+				}
+				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(2).getName())){
+					closscore -= 10;
+				}
+			}
 		}
 		
 		if (Math.abs(min-max) > 1) {closscore += 25;}
 		if (Math.abs(min-max) > 0) {closscore += 5;}
-		if (unfunded > 0) {closscore += 50*unfunded;}
+		if (unfunded > 0) {closscore += 50;}
 		return closscore;
 	}
 	
