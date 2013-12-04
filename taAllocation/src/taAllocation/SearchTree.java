@@ -17,6 +17,7 @@ public class SearchTree {
 	private long max;
 	private long min;
 	private LinkedList<Pair<Integer, TA>> children;
+	private int locind;
 	
 	public Pair<Integer, Stack<Node>> doSearch(){
 		max = environment.getMaxLabs();
@@ -58,31 +59,19 @@ public class SearchTree {
 					}
 				}
 			}
-			labOrder.add(new Pair<Integer,Pair<Course,Lab>>(500000, new Pair<Course, Lab>(new Course(" ", 0), new Lab(" "))));
 		}
 		Collections.sort(labOrder, new MyComparator());
-		Pair<Integer, Stack<Node>> bestSet = null;
+		Pair<Integer, Stack<Node>> bestSet = new Pair<Integer, Stack<Node>>(500000, null);
 		int index = 0;
 		while(index >= 0){
-			
-			if (index >= labOrder.size()) {	
-				for(TA ta: environment.TAs){
-					int locsize = ta.getInstructing().size();
-					if (locsize >= min || locsize == 0) {
-						int FinalScore = CurrentScore + sc.ClosingSoft(environment.getTAs());
-						if (FinalScore < bestSet.getKey()){
-							bestSet = new Pair<Integer, Stack<Node>>(FinalScore, tree);
-						}
-					}
-				}
-			}
+			//System.out.println(index);
 			
 			children = new LinkedList<Pair<Integer, TA>>();
 			boolean conflict;
 			for(TA ta:environment.TAs){
 				conflict = false;
 				for(Pair<Course,Lecture> co:ta.getClasses()){
-					if(co.getValue().getTime().checkConflict(labOrder.get(index).getValue().getValue().getTime())){
+						if(co.getValue().getTime().checkConflict(labOrder.get(index).getValue().getValue().getTime())){
 						conflict = true;
 						break;
 					}
@@ -97,7 +86,8 @@ public class SearchTree {
 					children.add(new Pair<Integer,TA>(sc.IncremSoft(ta, labOrder.get(index).getValue().getKey()), ta));
 				}
 			}
-			if (children.size() > 0) {
+			// Second guard is to stop segfaults caused by the systematic incrementation of index. (It has to stop when idex = last element of labOrder)
+			if (children.size() > 0 && index < labOrder.size() - 1) {
 				Pair<Integer,TA> locmin = children.get(0);
 				for(Pair<Integer,TA> p:children){
 					if (p.getKey() < locmin.getKey()) {locmin = p;}
@@ -105,12 +95,15 @@ public class SearchTree {
 				int tempscr = locmin.getKey();
 				CurrentScore += tempscr;
 				TA tempta = locmin.getValue();
-				children.remove(locmin);
+				children.remove(locind);
+				System.out.println(children.size());
+				System.out.println(locind);
 				current = new Node(tempta, labOrder.get(index).getValue().getKey(), labOrder.get(index).getValue().getValue(), tempscr , children);
 				tree.push(current);
-				index++;
-			} else {	
-
+				if(index < labOrder.size() - 1) {
+					index++;
+				}
+			} else if (index == labOrder.size()) {			
 				for(TA ta: environment.TAs){
 					int locsize = ta.getInstructing().size();
 					if (locsize >= min || locsize == 0) {
@@ -120,6 +113,12 @@ public class SearchTree {
 						}
 					}
 				}
+				
+				CurrentScore -= tree.peek().getLocalScore();
+				tree.pop();
+				current = tree.peek();
+				index--;
+			} else {	
 				CurrentScore -= tree.peek().getLocalScore();
 				tree.pop();
 				current = tree.peek();
