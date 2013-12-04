@@ -5,6 +5,7 @@ import java.util.LinkedList;
 public class Node {
 	private Pair<TA,Pair<Course,Lab>> assignment;
 	public LinkedList<Node> children;
+	public LinkedList<Node> toExpand;
 	
 	public Node(Pair<TA,Pair<Course,Lab>> ass){
 		setAssignment(ass);
