@@ -53,15 +53,18 @@ public class SearchTree {
 		int done = tree.size();
 		Node root = new Node(null);
 		Node current = root;
-		while(tree.size()!=done){ //Maybe do this with multiple for loops instead????
+		while(tree.size()!=done){
 			//If bottom of tree (i.e. labOrder.size()=(tree.size()-1-done)), set a value, pop, mark parent yes. If best set best.
-			tree.pop();
-			current = tree.peek();
+			//tree.pop();
+			//current = tree.peek();
 			for(TA ta: environment.TAs){ //Expand node. Remember to add check against current best if it exists, and check against hard constraints
 				current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue())));
 			}
-			//Look for best child, follow it and expand
-			Node toExpand = /*best child*/;
+			//When we expand a node (and only when) we add that node to the current's expanded list, so we don't re-expand nodes.
+			
+			//Look for best child in this list, follow it and expand
+			Node toExpand = new Node(null) /*best child*/;
+			current.toExpand.add(toExpand);
 			current = toExpand;
 			
 			
