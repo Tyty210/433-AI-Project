@@ -121,7 +121,7 @@ public class SearchTree {
 			if(current.children.equals(null) || isFullyExpanded){
 				current.getAssignment().getKey().remLab(current.getAssignment().getValue());
 				tree.pop();
-			} 
+			}  
 			else{
 				Node toExpand = null;
 				for(Node n:current.children){
