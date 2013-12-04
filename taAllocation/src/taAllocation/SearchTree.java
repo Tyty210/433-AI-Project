@@ -96,7 +96,6 @@ public class SearchTree {
 									}
 									if(isFree = true){
 										current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
-										System.out.println("Hello");
 									}
 								}
 							}
@@ -110,7 +109,7 @@ public class SearchTree {
 								}
 								if(isFree = true){
 									current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
-									System.out.println("Hello to you too");
+									System.out.println(current.children.get(0).getAssignment().getValue().getKey().getName());
 								}
 							}
 						}
