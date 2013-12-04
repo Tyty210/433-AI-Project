@@ -34,12 +34,21 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 		int okay = myAllocation.fromFile(args[0]);
 		String outName = args[0]+ ".out" ;
 		File output = new File(outName);
+		SearchTree orTree = new SearchTree(myAllocation);
+		Pair<Integer,LinkedList<Node>> bestSet = orTree.doSearch();
 		try{
 			if(output.exists())
 				output.delete();
 			output.createNewFile();
 			FileWriter fw = new FileWriter(output);
 			BufferedWriter bw = new BufferedWriter(fw);
+			for(Node n:bestSet.getValue()){
+				bw.write("instructs("+n.getAssignment().getKey().getName()+","+n.getAssignment().getValue().getKey().getName()+","+n.getAssignment().getValue().getValue().getName()+")");
+				bw.newLine();
+			}
+			bw.newLine();
+			bw.write("Optimal score found: "+bestSet.getKey());
+			/* Old IO Test output
 			bw.write("minlabs("+myAllocation.getMinLabs()+")");
 			bw.newLine();
 			bw.write("maxlabs("+myAllocation.getMaxLabs()+")");
@@ -159,6 +168,7 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 					}
 				}
 			}
+			*/
 			bw.close();
 			fw.close();
 		}

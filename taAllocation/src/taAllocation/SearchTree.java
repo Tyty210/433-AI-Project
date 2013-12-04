@@ -12,7 +12,8 @@ public class SearchTree {
 	public SearchTree(TAallocation env){
 		environment = env;
 	}
-	public void doSearch(){
+	public Pair<Integer,LinkedList<Node>> doSearch(){
+		tree = new Stack<Node>();
 		for(TA ta: environment.TAs){ //Fill the "tree" with forced assignments. These should not be gone over.
 			for(Pair<Course,Lab> in:ta.getInstructing()){
 				int checkAssin;
@@ -134,9 +135,10 @@ public class SearchTree {
 					}
 				}
 			}
-			//OUTPUT 
 		}
+		return bestSet;
 	}
+	
 }
 
 class MyComparator implements Comparator<Pair<Integer,Pair<Course,Lab>>>{
