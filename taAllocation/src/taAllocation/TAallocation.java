@@ -2,6 +2,7 @@ package taAllocation;
 
 import java.io.*;
 import java.util.LinkedList;
+import java.util.Stack;
 
 public class TAallocation extends PredicateReader implements TAallocationPredicates {
 
@@ -35,7 +36,7 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 		String outName = args[0]+ ".out" ;
 		File output = new File(outName);
 		SearchTree orTree = new SearchTree(myAllocation);
-		Pair<Integer,LinkedList<Node>> bestSet = orTree.doSearch();
+		Pair<Integer, Stack<Node>> bestSet = orTree.doSearch();
 		try{
 			if(output.exists())
 				output.delete();
@@ -43,7 +44,7 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 			FileWriter fw = new FileWriter(output);
 			BufferedWriter bw = new BufferedWriter(fw);
 			for(Node n:bestSet.getValue()){
-				bw.write("instructs("+n.getAssignment().getKey().getName()+","+n.getAssignment().getValue().getKey().getName()+","+n.getAssignment().getValue().getValue().getName()+")");
+				bw.write("instructs("+n.getTa().getName()+","+n.getCourse().getName()+","+n.getLab().getName()+")");
 				bw.newLine();
 			}
 			bw.newLine();
