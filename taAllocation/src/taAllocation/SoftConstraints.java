@@ -6,7 +6,7 @@ import java.util.LinkedList;
 public class SoftConstraints {
 		//HI I NEED TO BE CODED - I loled
 	public int IncremSoft(TA ta, Course course){
-		int tmpscore = 30;
+		int tmpscore = 40;
 		LinkedList<Pair<Course, Lab>> instruct = ta.getInstructing();
 		LinkedList<Course> knows = ta.getKnows();
 		String firstcourse = course.getName();
@@ -53,11 +53,20 @@ public class SoftConstraints {
 			}
 		} 
 
+		for (int m = 0; m < course.getLectures().size(); m++) {
+			for (int p = 0; p < course.getLectures().get(m).getPreference().size(); p++) {
+				if (course.getLectures().get(m).getPreference().get(p).getName().equals(ta.getName())) {
+					tmpscore -= 10;
+				}				
+			}
+		}
+		
 		return tmpscore;
 	}
 	
 	public int ClosingSoft(LinkedList<TA> TAs){
 		int closscore = 0;
+		int tmpscore = 0;
 		int unfunded = 0;
 		int min;
 		int max;
@@ -73,20 +82,22 @@ public class SoftConstraints {
 			
 			for (int j = 0; j < TAs.get(i).getInstructing().size(); j++){
 				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(0).getName())){
-					closscore -= 25;
+					tmpscore = 25;
 				}
-				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(1).getName())){
-					closscore -= 20;
+				if (tmpscore < 20){
+					if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(1).getName())) tmpscore = 20;
 				}
-				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(2).getName())){
-					closscore -= 10;
+				if (tmpscore < 10){
+					if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(2).getName())) tmpscore = 10;
 				}
 			}
+			closscore += tmpscore;
+			tmpscore = 0;
 		}
 		
 		if (Math.abs(min-max) > 1) {closscore += 25;}
 		if (Math.abs(min-max) > 0) {closscore += 5;}
-		if (unfunded > 0) {closscore += 50;}
+		if (unfunded > 0) {closscore += 50*unfunded;}
 		return closscore;
 	}
 	
