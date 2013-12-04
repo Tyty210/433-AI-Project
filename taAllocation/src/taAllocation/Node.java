@@ -3,23 +3,23 @@ package taAllocation;
 import java.util.LinkedList;
 
 public class Node {
-	private Pair<TA,Pair<Course,Lab>> assignment;
-	public LinkedList<Node> children;
-	public LinkedList<Node> Expanded;  
-	public int curScore;
+	private TA ta;
+	private Course course;
+	private Lab lab;	
+	public LinkedList<Pair<Integer, TA>> children;
+	private int LocalScore;
 	
-	public Node(Pair<TA,Pair<Course,Lab>> ass, int oldScore, int newScore){
-		setAssignment(ass);
-		curScore = oldScore + newScore;
-		children = new LinkedList<Node>();
-		Expanded = new LinkedList<Node>();
+	public Node(TA Ta, Course Course, Lab Lab, int localscore, LinkedList<Pair<Integer, TA>> Children){
+		ta = Ta;
+		course = Course;
+		lab = Lab;
+		localscore = LocalScore;
+		children = Children;
 	}
 
-	public Pair<TA,Pair<Course,Lab>> getAssignment() {
-		return assignment;
+	public void setTA(TA Ta){
+		ta = Ta;
 	}
-
-	public void setAssignment(Pair<TA,Pair<Course,Lab>> assignment) {
-		this.assignment = assignment;
-	}
+	
+	
 }
