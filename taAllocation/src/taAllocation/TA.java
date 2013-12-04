@@ -6,7 +6,7 @@ public class TA extends Entity {
 	
 	public LinkedList<Pair<Course, Lab>> getInstructing() {
 		return instructing;
-	}
+	} 
 
 	private Course[] preferences;
 	private LinkedList<Pair<Course, Lecture>> classes;
