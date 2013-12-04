@@ -54,6 +54,7 @@ public class SearchTree {
 				for(Lab la:co.getLabs()){
 					if(la.getTime().equals(to)){
 						Pair<Integer,Pair<Course,Lab>> newLab = new Pair<Integer,Pair<Course,Lab>>(curVail,new Pair<Course, Lab>(co,la));
+						labOrder.add(newLab);
 					}
 				}
 			}
@@ -62,6 +63,7 @@ public class SearchTree {
 		int done = tree.size();
 		Node root = new Node(null,0,0);
 		Node current = root;
+		tree.push(root);
 		Pair<Integer, LinkedList<Node>> bestSet = null;
 		while(tree.size()!=done){
 			if(labOrder.get(tree.size()).equals(null)){ //If we hit the bottom of the tree
@@ -83,8 +85,8 @@ public class SearchTree {
 			}
 			else{ //Otherwise expand as normal
 				for(TA ta: environment.TAs){
-					if(current.children.equals(null)){
-						if(!bestSet.equals(null)){
+					if(current.children.size()==0){
+						if(bestSet!=null){
 							if(current.curScore+sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())<bestSet.getKey()){
 								if(ta.getInstructing().size()<environment.getMaxLabs()){
 									boolean isFree = true;
@@ -94,6 +96,7 @@ public class SearchTree {
 									}
 									if(isFree = true){
 										current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
+										System.out.println("Hello");
 									}
 								}
 							}
@@ -107,6 +110,7 @@ public class SearchTree {
 								}
 								if(isFree = true){
 									current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
+									System.out.println("Hello to you too");
 								}
 							}
 						}
@@ -119,21 +123,22 @@ public class SearchTree {
 					isFullyExpanded = false;
 				}
 			}
-			if(current.children.equals(null) || isFullyExpanded){
+			if(current.children==null || isFullyExpanded){
 				current.getAssignment().getKey().remLab(current.getAssignment().getValue());
 				tree.pop();
 			}  
 			else{
 				Node toExpand = null;
 				for(Node n:current.children){
-					if(toExpand.equals(null))
+					if(toExpand==null)
 						toExpand = n;
-					if(n.curScore<toExpand.curScore && !current.Expanded.contains(n)){
-						current.Expanded.add(toExpand);
-						current = toExpand;
-						current.getAssignment().getKey().addLab(current.getAssignment().getValue());
+					if(n.curScore<=toExpand.curScore && !current.Expanded.contains(n)){
+						toExpand = n;
 					}
 				}
+				current.Expanded.add(toExpand);
+				current = toExpand;
+				current.getAssignment().getKey().addLab(current.getAssignment().getValue());
 			}
 		}
 		return bestSet;

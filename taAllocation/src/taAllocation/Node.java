@@ -11,6 +11,8 @@ public class Node {
 	public Node(Pair<TA,Pair<Course,Lab>> ass, int oldScore, int newScore){
 		setAssignment(ass);
 		curScore = oldScore + newScore;
+		children = new LinkedList<Node>();
+		Expanded = new LinkedList<Node>();
 	}
 
 	public Pair<TA,Pair<Course,Lab>> getAssignment() {
