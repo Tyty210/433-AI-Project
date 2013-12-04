@@ -66,6 +66,9 @@ public class TA extends Entity {
 		instructing.add(la);
 		return 0;
 	}
+	public void remLab(Pair<Course,Lab> la) {
+		instructing.remove(la);
+	}
 	
 
 }

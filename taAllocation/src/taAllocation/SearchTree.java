@@ -6,6 +6,7 @@ import java.util.Stack;
 import java.util.Collections;
 
 public class SearchTree {
+	SoftConstraints sc = new SoftConstraints();
 	private TAallocation environment;
 	private Stack<Node> tree;
 	public SearchTree(TAallocation env){
@@ -14,7 +15,14 @@ public class SearchTree {
 	public void doSearch(){
 		for(TA ta: environment.TAs){ //Fill the "tree" with forced assignments. These should not be gone over.
 			for(Pair<Course,Lab> in:ta.getInstructing()){
-				Node setInstruct = new Node(new Pair<TA,Pair<Course,Lab>>(ta,in));
+				int checkAssin;
+				if(tree.peek().equals(null)){
+					checkAssin = 0;
+				}
+				else{
+					checkAssin = tree.peek().curScore;
+				}
+				Node setInstruct = new Node(new Pair<TA,Pair<Course,Lab>>(ta,in),checkAssin,sc.IncremSoft(ta, in.getKey()));
 				if(!tree.peek().equals(null)){
 					tree.peek().children.add(setInstruct);
 				}
@@ -51,23 +59,82 @@ public class SearchTree {
 		}
 		Collections.sort(labOrder, new MyComparator());
 		int done = tree.size();
-		Node root = new Node(null);
+		Node root = new Node(null,0,0);
 		Node current = root;
+		Pair<Integer, LinkedList<Node>> bestSet = null;
 		while(tree.size()!=done){
-			//If bottom of tree (i.e. labOrder.size()=(tree.size()-1-done)), set a value, pop, mark parent yes. If best set best.
-			//tree.pop();
-			//current = tree.peek();
-			for(TA ta: environment.TAs){ //Expand node. Remember to add check against current best if it exists, and check against hard constraints
-				current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue())));
+			if(labOrder.get(tree.size()).equals(null)){ //If we hit the bottom of the tree
+				boolean noHCVio = true;
+				for(TA ta: environment.TAs){
+					if(ta.getInstructing().size()!=0 && ta.getInstructing().size()<environment.getMinLabs()){ //HC violation. Do not consider.
+						noHCVio = false;
+					}
+				}
+				if(noHCVio){
+					LinkedList<Node> curBest = new LinkedList<Node>();
+						for(Node n: tree){
+							if(!n.getAssignment().equals(null))
+								curBest.add(n);
+						}
+					int highScore = current.curScore+sc.ClosingSoft(environment.TAs);
+					bestSet = new Pair<Integer,LinkedList<Node>>(highScore,curBest);
+				}
 			}
-			//When we expand a node (and only when) we add that node to the current's expanded list, so we don't re-expand nodes.
-			
-			//Look for best child in this list, follow it and expand
-			Node toExpand = new Node(null) /*best child*/;
-			current.toExpand.add(toExpand);
-			current = toExpand;
-			
-			
+			else{ //Otherwise expand as normal
+				for(TA ta: environment.TAs){
+					if(current.children.equals(null)){
+						if(!bestSet.equals(null)){
+							if(current.curScore+sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())<bestSet.getKey()){
+								if(ta.getInstructing().size()<environment.getMaxLabs()){
+									boolean isFree = true;
+									for(Pair<Course,Lecture> pt: ta.getClasses()){
+										if(labOrder.get(tree.size()).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
+											isFree = false;
+									}
+									if(isFree = true){
+										current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
+									}
+								}
+							}
+						}
+						else{
+							if(ta.getInstructing().size()<environment.getMaxLabs()){
+								boolean isFree = true;
+								for(Pair<Course,Lecture> pt: ta.getClasses()){
+									if(labOrder.get(tree.size()).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
+										isFree = false;
+								}
+								if(isFree = true){
+									current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
+								}
+							}
+						}
+					}
+				}
+			}
+			boolean isFullyExpanded = true;
+			for(Node n:current.children){
+				if(!current.Expanded.contains(n)){
+					isFullyExpanded = false;
+				}
+			}
+			if(current.children.equals(null) || isFullyExpanded){
+				current.getAssignment().getKey().remLab(current.getAssignment().getValue());
+				tree.pop();
+			}
+			else{
+				Node toExpand = null;
+				for(Node n:current.children){
+					if(toExpand.equals(null))
+						toExpand = n;
+					if(n.curScore<toExpand.curScore && !current.Expanded.contains(n)){
+						current.Expanded.add(toExpand);
+						current = toExpand;
+						current.getAssignment().getKey().addLab(current.getAssignment().getValue());
+					}
+				}
+			}
+			//OUTPUT
 		}
 	}
 }
