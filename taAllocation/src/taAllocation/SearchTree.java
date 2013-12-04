@@ -65,8 +65,9 @@ public class SearchTree {
 		Node current = root;
 		tree.push(root);
 		Pair<Integer, LinkedList<Node>> bestSet = null;
-		while(tree.size()!=done){
-			if(labOrder.get(tree.size()).equals(null)){ //If we hit the bottom of the tree
+		int i = 0;
+		while(tree.size()!=done && i != 50){
+			if((tree.size()-done==labOrder.size()-1)){ //If we hit the bottom of the tree
 				boolean noHCVio = true;
 				for(TA ta: environment.TAs){
 					if(ta.getInstructing().size()!=0 && ta.getInstructing().size()<environment.getMinLabs()){ //HC violation. Do not consider.
@@ -76,7 +77,7 @@ public class SearchTree {
 				if(noHCVio){
 					LinkedList<Node> curBest = new LinkedList<Node>();
 						for(Node n: tree){
-							if(!n.getAssignment().equals(null))
+							if(!(n.getAssignment()==null))
 								curBest.add(n);
 						}
 					int highScore = current.curScore+sc.ClosingSoft(environment.TAs);
@@ -87,15 +88,15 @@ public class SearchTree {
 				for(TA ta: environment.TAs){
 					if(current.children.size()==0){
 						if(bestSet!=null){
-							if(current.curScore+sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())<bestSet.getKey()){
+							if(current.curScore+sc.IncremSoft(ta,labOrder.get(tree.size()-done-1).getValue().getKey())<bestSet.getKey()){
 								if(ta.getInstructing().size()<environment.getMaxLabs()){
 									boolean isFree = true;
 									for(Pair<Course,Lecture> pt: ta.getClasses()){
-										if(labOrder.get(tree.size()).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
+										if(labOrder.get(tree.size()-done-1).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
 											isFree = false;
 									}
 									if(isFree = true){
-										current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
+										current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()-done-1).getValue().getKey())));
 									}
 								}
 							}
@@ -104,12 +105,11 @@ public class SearchTree {
 							if(ta.getInstructing().size()<environment.getMaxLabs()){
 								boolean isFree = true;
 								for(Pair<Course,Lecture> pt: ta.getClasses()){
-									if(labOrder.get(tree.size()).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
+									if(labOrder.get(tree.size()-done-1).getValue().getValue().getTime().checkConflict(pt.getValue().getTime()))
 										isFree = false;
 								}
 								if(isFree = true){
-									current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()).getValue().getKey())));
-									System.out.println(current.children.get(0).getAssignment().getValue().getKey().getName());
+									current.children.add(new Node(new Pair<TA, Pair<Course, Lab>>(ta,labOrder.get(tree.size() - 1 - done).getValue()),current.curScore,sc.IncremSoft(ta,labOrder.get(tree.size()-done-1).getValue().getKey())));
 								}
 							}
 						}
@@ -138,6 +138,8 @@ public class SearchTree {
 				current.Expanded.add(toExpand);
 				current = toExpand;
 				current.getAssignment().getKey().addLab(current.getAssignment().getValue());
+				tree.push(current);
+				System.out.println(current.getAssignment().getValue().getKey().getName());
 			}
 		}
 		return bestSet;
