@@ -93,7 +93,7 @@ public class SoftConstraints {
 		
 		if (Math.abs(min-max) > 1) {closscore += 25;}
 		if (Math.abs(min-max) > 0) {closscore += 5;}
-		if (unfunded > 0) {closscore += 50*unfunded;}
+		if (unfunded > 0) {closscore += unfunded*50;}
 		return closscore;
 	}
 	

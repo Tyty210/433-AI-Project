@@ -33,10 +33,13 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 		PredicateReader workDammit = new PredicateReader("asdf");
 		TAallocation myAllocation = new TAallocation(workDammit);
 		int okay = myAllocation.fromFile(args[0]);
+		long runtime = 0;
+		if(args.length>1)
+			runtime = Long.valueOf(args[1]);
 		String outName = args[0]+ ".out" ;
 		File output = new File(outName);
 		SearchTree orTree = new SearchTree(myAllocation);
-		Pair<Pair<Integer,Integer>, Stack<Node>> bestSet = orTree.doSearch();
+		Pair<Pair<Integer,Integer>, Stack<Node>> bestSet = orTree.doSearch(runtime);
 
 		try{
 			if(output.exists())

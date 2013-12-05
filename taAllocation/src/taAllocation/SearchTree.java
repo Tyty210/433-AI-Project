@@ -17,7 +17,9 @@ public class SearchTree {
 	private long max;
 	private long min;
 	
-	public Pair<Pair<Integer,Integer>, Stack<Node>> doSearch(){
+	public Pair<Pair<Integer,Integer>, Stack<Node>> doSearch(long intime){
+		long start = System.currentTimeMillis();
+		long limit = start+intime;
 		max = environment.getMaxLabs();
 		min = environment.getMinLabs();
 		tree = new Stack<Node>();
@@ -73,12 +75,13 @@ public class SearchTree {
 		Node root = new Node(null,null,null,CurrentScore,null);
 		tree.push(root);
 		while(index >= 0){
+			long curtime = System.currentTimeMillis();
 			if((tree.peek().children==null) && index < labOrder.size()){ //If we're not at the bottom, and have no children, expand
 				tree.peek().children = new LinkedList<Pair<Integer, TA>>(); //Create new list
 				if(bestSet!=null){ //If we have a best set, make sure children are at least better than it
 					for(TA t:environment.TAs){
 						int localScore =tree.peek().getLocalScore() + sc.IncremSoft(t, labOrder.get(index).getValue().getKey(),tree);
-						if(localScore <= bestSet.getKey().getKey()/((labOrder.size()-index))){
+						if(localScore <= bestSet.getKey().getKey()/((labOrder.size()-index))/2){
 							int instructing = t.getNumLabs();
 							if(instructing < max || max == 0){
 								boolean conflicts = false;
@@ -174,6 +177,8 @@ public class SearchTree {
 					localPos++;
 				}
 				tree.peek().children.remove(localPos);
+				if(bestSet!=null && bestSet.getKey().getValue() == 0)
+					index = -1;
 				index--;
 			}
 			else if(tree.peek().children.size()==0){ //If all children have been expanded, step back
@@ -192,7 +197,7 @@ public class SearchTree {
 			}
 			else{
 				if(bestSet!=null){
-					int trimmer = (labOrder.size()-index-1);
+					int trimmer = ((labOrder.size()-index-1)/2);
 					if(trimmer == 0)
 						trimmer++;
 					for(int i = 0; i<tree.peek().children.size();){
@@ -215,6 +220,9 @@ public class SearchTree {
 				tree.push(new Node(toExpand.getValue(), labOrder.get(index).getValue().getKey(),labOrder.get(index).getValue().getValue(), toExpand.getKey(),null));
 				index++;
 				}
+			}
+			if(curtime>limit && intime!=0){
+				return bestSet;
 			}
 		}
 		return bestSet;
