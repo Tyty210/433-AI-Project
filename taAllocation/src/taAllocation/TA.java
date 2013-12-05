@@ -12,6 +12,7 @@ public class TA extends Entity {
 	private LinkedList<Pair<Course, Lecture>> classes;
 	private LinkedList<Course> knows;
 	private LinkedList<Pair<Course, Lab>>	instructing;
+	private int numLabs;
 	
 	public TA (String name){
 		super(name);
@@ -22,6 +23,7 @@ public class TA extends Entity {
 		preferences[0] = new Course("null",0);
 		preferences[1] = new Course("null",0);
 		preferences[2] = new Course("null",0);
+		numLabs = 0;
 	}
 	
 	public Course getPreference(int n){
@@ -64,10 +66,17 @@ public class TA extends Entity {
 			return -1;
 		}
 		instructing.add(la);
+		numLabs++;
 		return 0;
 	}
-	public void remLab(Pair<Course,Lab> la) {
-		instructing.remove(la);
+	public void incLabs(){
+		numLabs++;
+	}
+	public void decLabs(){
+		numLabs--;
+	}
+	public int getNumLabs(){
+		return numLabs;
 	}
 	
 

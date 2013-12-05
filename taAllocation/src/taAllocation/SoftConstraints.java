@@ -32,6 +32,7 @@ public class SoftConstraints {
 				}
 			} 
 		}
+		System.out.println(tmpscore);
 		if (course.getType() == 1){
 			if (seniorcourse != null){
 				if (course.getName().equals(seniorcourse) == false && numsenior == 1){
@@ -39,9 +40,11 @@ public class SoftConstraints {
 				}
 			}
 		}
-		for (int j = 0; j < knows.size(); j++) {
-			if (course.getName().equals(knows.get(j))) {tmpscore -= 30;}
+		System.out.println(tmpscore);
+		for (Course k:ta.getKnows()) {
+			if (course.equals(k)) {tmpscore -= 30;}
 		}
+		System.out.println(tmpscore);
 		if (course.getName().equals(firstcourse) == false){
 			if (secondcourse == null) {
 				tmpscore += 20;
@@ -52,7 +55,7 @@ public class SoftConstraints {
 					tmpscore += 35;
 			}
 		} 
-
+		System.out.println(tmpscore);
 		for (int m = 0; m < course.getLectures().size(); m++) {
 			for (int p = 0; p < course.getLectures().get(m).getPreference().size(); p++) {
 				if (course.getLectures().get(m).getPreference().get(p).getName().equals(ta.getName())) {
@@ -60,44 +63,39 @@ public class SoftConstraints {
 				}				
 			}
 		}
-
+		System.out.println(tmpscore);
 		return tmpscore;
 	}
 	
-	public int ClosingSoft(LinkedList<TA> TAs){
+	public int ClosingSoft(LinkedList<TA> TAs, Stack<Node> tree){
 		int closscore = 0;
 		int tmpscore = 0;
 		int unfunded = 0;
-		int min;
-		int max;
+		int min = TAs.get(0).getNumLabs();
+		int max=0;
 		int tmp;
 		
-		min = max = TAs.get(0).getInstructing().size();
-		if (min == 0) {unfunded += 1;}
-		
-		for(int i = 1; i < TAs.size(); i++){
-			tmp = TAs.get(i).getInstructing().size();
+		for(TA ta: TAs){
+			if(ta.getNumLabs()==0){
+				unfunded++;
+			}
+		}
+		for(TA ta: TAs){
+			tmp = ta.getNumLabs();
 			if (tmp < min) {min = tmp;}
 			if (tmp > max) {max = tmp;}
 			
-			for (int j = 0; j < TAs.get(i).getInstructing().size(); j++){
-				if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(0).getName())){
-					tmpscore = 25;
-				}
-				if (tmpscore < 20){
-					if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(1).getName())) tmpscore = 20;
-				}
-				if (tmpscore < 10){
-					if (TAs.get(i).getInstructing().get(j).getKey().getName().equals(TAs.get(i).getPreference(2).getName())) tmpscore = 10;
-				}
-			}
 			closscore += tmpscore;
 			tmpscore = 0;
+		}
+		for(TA ta: TAs){
+			
 		}
 		
 		if (Math.abs(min-max) > 1) {closscore += 25;}
 		if (Math.abs(min-max) > 0) {closscore += 5;}
 		if (unfunded > 0) {closscore += 50*unfunded;}
+		System.out.println(closscore);
 		return closscore;
 	}
 	

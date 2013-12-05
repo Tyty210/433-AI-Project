@@ -43,12 +43,18 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 			output.createNewFile();
 			FileWriter fw = new FileWriter(output);
 			BufferedWriter bw = new BufferedWriter(fw);
-			for(Node n:bestSet.getValue()){
-				bw.write("instructs("+n.getTa().getName()+","+n.getCourse().getName()+","+n.getLab().getName()+")");
+			if(bestSet!=null){
+				for(Node n:bestSet.getValue()){
+					System.out.println(bestSet.getValue().size());
+						bw.write("instructs("+n.getTa().getName()+","+n.getCourse().getName()+","+n.getLab().getName()+")");
+						bw.newLine();
+				}
 				bw.newLine();
+				bw.write("Optimal score found: "+bestSet.getKey());
 			}
-			bw.newLine();
-			bw.write("Optimal score found: "+bestSet.getKey());
+			else{
+				bw.write("Search failed. Unsolvable");
+			}
 			/* Old IO Test output
 			bw.write("minlabs("+myAllocation.getMinLabs()+")");
 			bw.newLine();
