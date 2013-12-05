@@ -36,7 +36,8 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 		String outName = args[0]+ ".out" ;
 		File output = new File(outName);
 		SearchTree orTree = new SearchTree(myAllocation);
-		Pair<Integer, Stack<Node>> bestSet = orTree.doSearch();
+		Pair<Pair<Integer,Integer>, Stack<Node>> bestSet = orTree.doSearch();
+
 		try{
 			if(output.exists())
 				output.delete();
@@ -45,15 +46,9 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 			BufferedWriter bw = new BufferedWriter(fw);
 			if(bestSet!=null){
 				for(Node n:bestSet.getValue()){
-					System.out.println(bestSet.getValue().size());
 						bw.write("instructs("+n.getTa().getName()+","+n.getCourse().getName()+","+n.getLab().getName()+")");
 						bw.newLine();
 				}
-				bw.newLine();
-				bw.write("Optimal score found: "+bestSet.getKey());
-			}
-			else{
-				bw.write("Search failed. Unsolvable");
 			}
 			/* Old IO Test output
 			bw.write("minlabs("+myAllocation.getMinLabs()+")");
@@ -456,24 +451,25 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 						return;
 					}
 				}
-				errorWithPredicate("Course doesn't exist");
-				return;
 			}
 		}
 		for(TA t: TAs){
-			for(Course co:courses){
-				if(co.getName().equals(c)){
-					LinkedList<Lab> labs = co.getLabs();
-					for(Lab la: labs){
-						if(la.getName().equals(l)){
-							int addlab = t.addLab(new Pair<Course,Lab>(co,la));
-							if(addlab==-1)
-								System.out.println("Warning: TA already teaching that lab @"+getLineNumber());
-							return;
+			if(t.getName().equals(p)){
+				for(Course co:courses){
+					if(co.getName().equals(c)){
+						LinkedList<Lab> labs = co.getLabs();
+						for(Lab la: labs){
+							if(la.getName().equals(l)){
+								int addlab = t.addLab(new Pair<Course,Lab>(co,la));
+								if(addlab==-1)
+									System.out.println("Warning: TA already teaching that lab @"+getLineNumber());
+								return;
+							}
 						}
+						errorWithPredicate("Lab doesn't exist");
+						return;
 					}
-					errorWithPredicate("Lab doesn't exist");
-					return;
+					
 				}
 				errorWithPredicate("Course doesn't exist");
 				return;

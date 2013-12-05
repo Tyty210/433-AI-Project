@@ -13,7 +13,7 @@ public class Node {
 		ta = Ta;
 		course = Course;
 		lab = Lab;
-		localscore = LocalScore;
+		LocalScore = localscore;
 		children = Children;
 	}
 

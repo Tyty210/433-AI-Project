@@ -10,8 +10,11 @@ public class Timeslot extends Entity {
 	private LinkedList<Timeslot> conflicts;
 	
 	public boolean checkConflict(Timeslot t){
-		if (conflicts.contains(t)){
+		if(t.equals(this))
 			return true;
+		for(Timeslot to:conflicts){
+			if(to.getName().equals(t.getName()))
+				return true;
 		}
 		return false;
 	}

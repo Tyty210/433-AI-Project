@@ -17,14 +17,17 @@ public class SearchTree {
 	private long max;
 	private long min;
 	
-	public Pair<Integer, Stack<Node>> doSearch(){
+	public Pair<Pair<Integer,Integer>, Stack<Node>> doSearch(){
 		max = environment.getMaxLabs();
 		min = environment.getMinLabs();
 		tree = new Stack<Node>();
 		for(TA ta: environment.TAs){ //Fill the "tree" with forced assignments. These should not be gone over.
 			for(Pair<Course,Lab> in:ta.getInstructing()){
-				current = new Node(ta, in.getKey(), in.getValue(), sc.IncremSoft(ta, in.getKey()) , null);
-				CurrentScore += current.getLocalScore();
+				int tempscore = 0;
+				if(tree.size()!=0){
+					tempscore = tree.peek().getLocalScore();
+				}
+				current = new Node(ta, in.getKey(), in.getValue(), sc.IncremSoft(ta, in.getKey(), tree)+tempscore,null);
 				tree.push(current);
 				//Do something about this node in the tree
 			}
@@ -57,7 +60,7 @@ public class SearchTree {
 							alExists = true;
 						}
 					}
-					if(la.getTime().equals(to)&& !alExists){
+					if(la.getTime().equals(to) && !alExists){
 						newLab = new Pair<Integer,Pair<Course,Lab>>(curVail, new Pair<Course, Lab>(co,la));
 						labOrder.add(newLab);
 					}
@@ -65,21 +68,19 @@ public class SearchTree {
 			}
 		}
 		Collections.sort(labOrder, new MyComparator());
-		Pair<Integer, Stack<Node>> bestSet = null;
+		Pair<Pair<Integer,Integer>, Stack<Node>> bestSet = null;
 		int index = 0;
 		Node root = new Node(null,null,null,CurrentScore,null);
 		tree.push(root);
 		while(index >= 0){
-			System.out.println("hi");
 			if((tree.peek().children==null) && index < labOrder.size()){ //If we're not at the bottom, and have no children, expand
 				tree.peek().children = new LinkedList<Pair<Integer, TA>>(); //Create new list
 				if(bestSet!=null){ //If we have a best set, make sure children are at least better than it
 					for(TA t:environment.TAs){
-						int localScore = sc.IncremSoft(t, labOrder.get(index).getValue().getKey());
-						localScore = localScore + tree.peek().getLocalScore();
-						if(localScore < bestSet.getKey()){
+						int localScore =tree.peek().getLocalScore() + sc.IncremSoft(t, labOrder.get(index).getValue().getKey(),tree);
+						if(localScore <= bestSet.getKey().getKey()/((labOrder.size()-index))){
 							int instructing = t.getNumLabs();
-							if(instructing < max){
+							if(instructing < max || max == 0){
 								boolean conflicts = false;
 								for(Pair<Course,Lecture> p: t.getClasses()){
 									if(p.getValue().getTime().checkConflict(labOrder.get(index).getValue().getValue().getTime())){
@@ -105,10 +106,10 @@ public class SearchTree {
 				}
 				else{ //Otherwise just generate children
 					for(TA t:environment.TAs){
-						int localScore = sc.IncremSoft(t, labOrder.get(index).getValue().getKey());
+						int localScore = sc.IncremSoft(t, labOrder.get(index).getValue().getKey(),tree);
 						localScore = localScore + tree.peek().getLocalScore();
 						int instructing = t.getNumLabs();
-						if(instructing < max){
+						if(instructing < max || max==0){
 							boolean conflicts = false;
 							for(Pair<Course,Lecture> p: t.getClasses()){
 								if(p.getValue().getTime().checkConflict(labOrder.get(index).getValue().getValue().getTime())){
@@ -140,17 +141,18 @@ public class SearchTree {
 						isOverMin = false;
 						break;
 					}
+				}
 					if(isOverMin){
-						int finalScore = tree.peek().getLocalScore()+sc.ClosingSoft(environment.TAs);
+						int finalScore = tree.peek().getLocalScore()+sc.ClosingSoft(environment.TAs,tree);
 						if(bestSet!=null){
-							if(finalScore<bestSet.getKey()){
+							if(finalScore<bestSet.getKey().getValue()){
 								Stack<Node> bestStack = new Stack<Node>();
 								for(Node n:tree){
 									if(n.getTa()!=null){
 										bestStack.push(n);
 									}
 								}
-								bestSet = new Pair<Integer,Stack<Node>>(finalScore,bestStack);
+								bestSet = new Pair<Pair<Integer,Integer>,Stack<Node>>(new Pair<Integer,Integer>(tree.peek().getLocalScore(),finalScore),bestStack);
 							}
 						}
 						else{
@@ -160,9 +162,8 @@ public class SearchTree {
 									bestStack.push(n);
 								}
 							}
-							bestSet = new Pair<Integer,Stack<Node>>(finalScore,bestStack);
+							bestSet = new Pair<Pair<Integer,Integer>,Stack<Node>>(new Pair<Integer,Integer>(tree.peek().getLocalScore(),finalScore),bestStack);
 						}
-					}
 				}
 				tree.peek().getTa().decLabs();
 				Node temp = tree.pop();
@@ -191,8 +192,11 @@ public class SearchTree {
 			}
 			else{
 				if(bestSet!=null){
+					int trimmer = (labOrder.size()-index-1);
+					if(trimmer == 0)
+						trimmer++;
 					for(int i = 0; i<tree.peek().children.size();){
-						if(tree.peek().children.get(i).getKey()>bestSet.getKey()){
+						if(tree.peek().children.get(i).getKey()>bestSet.getKey().getKey()/(trimmer)){
 							tree.peek().children.remove(i);
 						}
 						else{
@@ -200,6 +204,7 @@ public class SearchTree {
 						}
 					}
 				}
+				if(tree.peek().children.size()!=0){
 				Pair<Integer,TA> toExpand = tree.peek().children.get(0);
 				for(Pair<Integer,TA> p:tree.peek().children){
 					if(toExpand.getKey()<p.getKey()){
@@ -209,8 +214,7 @@ public class SearchTree {
 				toExpand.getValue().incLabs();
 				tree.push(new Node(toExpand.getValue(), labOrder.get(index).getValue().getKey(),labOrder.get(index).getValue().getValue(), toExpand.getKey(),null));
 				index++;
-			}
-			if(bestSet!=null){
+				}
 			}
 		}
 		return bestSet;
